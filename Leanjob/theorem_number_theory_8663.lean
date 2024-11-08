@@ -4,22 +4,14 @@ import Aesop
 open BigOperators Real Nat Topology Rat Int Set ArithmeticFunction
 
 /-A natural number is called *good* if it can be represented as sum of two coprime natural numbers, the first of which decomposes into odd number of primes (not necceserily distinct) and the second to even. Prove that there exist infinity many  $n$  with  $n^4$  being good.-/
-/-Solution from AOPS:
-I will prove that there exists infinitely many numbers  $n^4$  such that  $n^4=x^2+2y^2$  in which  $x$  is odd and  $y$  is even and  $gcd(x,y)=1$  .
-Clearly we have that  $n^4$  is a good number. Reason :  $x^2$  has even prime factors and since  $y^2$  has even prime factors  $\implies$   $2y^2$  has odd prime factors.
-The goal is to construct a good number from previous good numbers
-Note that we have :  $3^4=7^2+2*4^2$
-By lagrange formula we have that  $(a^2+mb^2)(c^2+md^2)=(ac-mbd)^2+m(bc+ad)^2$ By putting  $c=a$  and  $d=b$  and  $m=2$   we get that  $(a^2+2b^2)(a^2+2b^2)=(a^2-2b^2)^2+2(2ab)^2$ Assume that we have   $(a^2+2b^2)=n_1^4$  , and  $n_1^4$  is the largest number we know of the form  $a^4$  and good number .
-Therefor by the formula above we can see that  $n_1^8=(a^2-2b^2)+2(2ab)^2 \implies n_1^8$  is a good number , so we have found a bigger number of the form  $a^4$  such that it is a good number . ( Note that  $a^2-2b^2$  and  $2ab$  are coprime)
-So we start form  $3^4$  and construct  $9^4$  and  $81^4$   $\dots$   $Q.E.D$ -/
-theorem number_theory_8663 : Set.Infinite {n : ℕ | ∃ m k : ℕ, n = m + k ∧ m ≠ k ∧ Nat.Coprime m k ∧ Odd (cardFactors m)∧ Even (cardFactors k) ∧ ∃ j : ℕ, j^4 = n} := by
+
+theorem number_theory_8663 : Set.Infinite {n : ℕ | ∃ m k : ℕ, n = m + k ∧ Nat.Coprime m k ∧ Odd (cardFactors m)∧ Even (cardFactors k) ∧ ∃ j : ℕ, j^4 = n} := by
 --The formulation is almost correct but the set primeFactors doesn't compute the multiplicity, we should use primeFactorList or the Ω function instead. Not easy to handle.
 -- A subset of natural numbers is infinite iff it's not bounded above.
   apply infinite_of_not_bddAbove
   rw[not_bddAbove_iff]
 --Introduce several lemmas
 --If x^2 is even, then x is even
-  have even_of_even_sq (m : ℕ) (h : 2 ∣ m ^ 2) : 2 ∣ m := Nat.Prime.dvd_of_dvd_pow Nat.prime_two h
 --If x^2 is divided by p, then so is x
   have prime_dvd_of_dvd_sq (m p : ℕ) (p_prime : Nat.Prime p) (hp:p∣m^2):p∣m:=by
     exact Nat.Prime.dvd_of_dvd_pow p_prime hp
@@ -63,38 +55,22 @@ theorem number_theory_8663 : Set.Infinite {n : ℕ | ∃ m k : ℕ, n = m + k �
 --Introduce the upper bound N, we shall see later we can find good number greater than N.
   intro N
 --We first prove that numbers of the form j^4=2*y^2+x^2 are all good.
-  have h (n:ℕ):(∃ j : ℕ, j^4 = n ∧ ∃ x y :ℕ, n=2*y^2+x^2 ∧ y ≠ 0 ∧ Odd x∧ Nat.Coprime x y)->(∃ m k : ℕ, n = m + k ∧ m ≠ k ∧ Nat.Coprime m k ∧ Odd (cardFactors m) ∧ Even (cardFactors k) ∧ ∃ j : ℕ, j^4 = n):=by
+  have h (n:ℕ):(∃ j : ℕ, j^4 = n ∧ ∃ x y :ℕ, n=2*y^2+x^2 ∧ y ≠ 0 ∧ Odd x∧ Nat.Coprime x y)->(∃ m k : ℕ, n = m + k ∧ Nat.Coprime m k ∧ Odd (cardFactors m) ∧ Even (cardFactors k) ∧ ∃ j : ℕ, j^4 = n):=by
 --Introduce assumptions needed.
     intro ⟨j,hj,x,y,hxy,ynezero,oddx,hxy_coprime⟩
     use 2*y^2,x^2
     constructor
     exact hxy
     constructor
---We prove that they are distinct via parity, this is not needed in the natural language.
-    contrapose! oddx
-    simp only[Nat.not_odd_iff_even]
-    apply even_iff_two_dvd.mpr
-    apply even_of_even_sq
-    rw[←oddx]
     norm_num
-    constructor
 --We prove that the m,k we choose are coprime
     rw[Nat.coprime_comm]
     apply Nat.coprime_mul_iff_right.mpr
     constructor
-    rw[Nat.pow_two]
     apply Odd.coprime_two_right
-    apply Odd.mul oddx oddx
-    contrapose! hxy_coprime
-    apply Nat.Prime.not_coprime_iff_dvd.mpr
---We use prime to test the common divisor
-    rcases Nat.Prime.not_coprime_iff_dvd.mp hxy_coprime with ⟨p,p_prime,hpx,hpy⟩
-    use p
-    constructor
-    exact p_prime
-    constructor
-    exact prime_dvd_of_dvd_sq x p p_prime hpx
-    exact prime_dvd_of_dvd_sq y p p_prime hpy
+    apply oddx
+    simp only [Nat.ofNat_pos, coprime_pow_right_iff]
+    exact hxy_coprime
     constructor
 --Use the lemma given above two prove the desired parity.
     apply odd_length_of_prime_factors_two_mul_square y ynezero
@@ -224,7 +200,7 @@ theorem number_theory_8663 : Set.Infinite {n : ℕ | ∃ m k : ℕ, n = m + k �
       rw[mul_assoc]
     rw[aux] at h'''
     apply h'''
-  have n_exists_above : ∃ n, N< n ∧  ∃ m k : ℕ, n = m + k ∧ m ≠ k ∧ Nat.Coprime m k ∧ Odd (cardFactors m) ∧ Even (cardFactors k) ∧ ∃ j : ℕ, j^4 = n:=  by
+  have n_exists_above : ∃ n, N< n ∧  ∃ m k : ℕ, n = m + k  ∧ Nat.Coprime m k ∧ Odd (cardFactors m) ∧ Even (cardFactors k) ∧ ∃ j : ℕ, j^4 = n:=  by
     use 3^(2^(2+N))
     constructor
     apply pow3_Archimedean

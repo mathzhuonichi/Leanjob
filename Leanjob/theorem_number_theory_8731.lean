@@ -14,8 +14,24 @@ open BigOperators Rat Int Nat
 
 -- Define a list with the first 26 known primes
 
-noncomputable def p : ℕ → ℕ
+
+noncomputable def p: ℕ->ℕ
   | n => Nat.nth Nat.Prime n
+
+noncomputable def findindex (n k : ℕ) : ℕ :=
+  if k = 0 then 0
+  else  if k = 1 then
+          if n = 0 then 2
+          else findindex (n - 1) (p (n - 1))  + 1
+        else findindex n (k - 1) + 1
+termination_by (n,k)
+
+noncomputable def findindex' : ℕ → ℕ → ℕ
+  | _, 0     => 0
+  | 0, 1     => 2
+  | m + 1, 1 => findindex' m (p m) + 1
+  | n, k + 1 => findindex' n k + 1
+
 
 -- Define the function that maps each natural number to its greatest prime divisor
 def gstfac (n : ℕ) : ℕ :=

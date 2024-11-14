@@ -1,6 +1,8 @@
 import Mathlib
 import Aesop
 open BigOperators Real Nat Topology Rat Int Finset
+
+
 -- Find the number of pairs  $(n, q)$ , where  $n$  is a positive integer and  $q$  a non-integer rational number with  $0 < q < 2000$ , that satisfy  $\{q^2\}=\left\{\frac{n!}{2000}\right\}$
 
 def denominator_list : List ℕ :=
@@ -18,7 +20,10 @@ lemma hans:(fract (3/5:ℚ) ≠ 0) ∧ fract ((3/5: ℚ )^2) = fract (6 !/2000:R
     simp only [succ_eq_add_one, Nat.reduceAdd, zero_add, mul_one, Nat.reduceMul, Nat.cast_ofNat,fract]
     norm_num
 
-theorem number_theory_8675 : ∀ (n:ℕ) (q:ℚ) (h₀:0< q ∧ q <2000) (h:fract q ≠ 0), fract (q^2) = fract (n !/2000:Rat) ↔ (n=6 ∧ q = 3/5):=by
+theorem number_theory_8675:Set.ncard {(q , n):ℚ×ℕ|(0<q ∧ q<2000)∧(fract q ≠ 0)∧ (fract (q^2)=fract (n !/2000:Rat))} =399:=by
+  sorry
+
+theorem number_theory_8675' : ∀ (n:ℕ) (q:ℚ) (h₀:0< q ∧ q <2000) (h:fract q ≠ 0), fract (q^2) = fract (n !/2000:Rat) ↔ (n=6 ∧ q = 3/5):=by
   have rat_sub_int_den (x:ℚ) (m:ℤ):x.den=(x-m).den :=by
     rw[Rat.sub_def]
     simp[Rat.normalize]
